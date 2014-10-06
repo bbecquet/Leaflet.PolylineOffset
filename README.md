@@ -11,9 +11,9 @@ Line offsetting is the process of drawing a line parallel to an existant one, at
 This plugin brings this feature to Leaflet, to apply to client-side vectors.
 
 Demos are clearer than words:
-* [Basic demo](//bbecquet.github.io/Leaflet.PolylineOffset/examples/example.html). The dashed line is the "model", with no offset applied. Red is with a -10px offset, green is with a 5px offset. The three are distinct `Polyline` objects but uses the same coordinate array. 
-* [Cycle lanes](//bbecquet.github.io/Leaflet.PolylineOffset/examples/example_cycles.html). Drawing a road with two directions of cycle lanes, a main one and one shared. 
-* [Bus lines](//bbecquet.github.io/Leaflet.PolylineOffset/examples/example_bus.html). A more complex demo. Offsets are computed automatically depending on the number of bus lines using the same segment. Other non-offset polylines are used to achieve the white and black outline effect.
+* [Basic demo](http://bbecquet.github.io/Leaflet.PolylineOffset/examples/example.html). The dashed line is the "model", with no offset applied. Red is with a -10px offset, green is with a 5px offset. The three are distinct `Polyline` objects but uses the same coordinate array. 
+* [Cycle lanes](http://bbecquet.github.io/Leaflet.PolylineOffset/examples/example_cycle.html). Drawing a road with two directions of cycle lanes, a main one and one shared. 
+* [Bus lines](http://bbecquet.github.io/Leaflet.PolylineOffset/examples/example_bus.html). A more complex demo. Offsets are computed automatically depending on the number of bus lines using the same segment. Other non-offset polylines are used to achieve the white and black outline effect.
 
 ## Usage
 
