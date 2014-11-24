@@ -5,8 +5,9 @@ L.PolylineOffset = {
 
   offsetPointLine: function(points, distance) {
     var l = points.length;
-    if (l < 2)
+    if (l < 2) {
       throw new Error('Line should be defined by at least 2 points');
+    }
 
     var a = points[0], b;
     var offsetAngle, segmentAngle;
@@ -75,19 +76,23 @@ L.PolylineOffset = {
     var line1 = this.lineEquation(l1a, l1b),
         line2 = this.lineEquation(l2a, l2b);
 
-    if (line1 == null || line2 == null)
+    if (line1 == null || line2 == null) {
       return null;
+    }
 
     if(line1.hasOwnProperty('x')) {
-      if(line2.hasOwnProperty('x'))
+      if(line2.hasOwnProperty('x')) {
         return null;
+      }
       return L.point(line1.x, line2.a * line1.x + line2.b);
     }
-    if(line2.hasOwnProperty('x'))
+    if(line2.hasOwnProperty('x')) {
       return L.point(line2.x, line1.a * line2.x + line1.b);
+    }
 
-    if (line1.a == line2.a)
+    if (line1.a == line2.a) {
       return null;
+    }
 
     var x = (line2.b - line1.b) / (line1.a - line2.a),
         y = line1.a * x + line1.b;
@@ -101,8 +106,7 @@ L.PolylineOffset = {
   Return null if there's no equation possible
   */
   lineEquation: function(pt1, pt2) {
-    if (pt1.x != pt2.x)
-    {
+    if (pt1.x != pt2.x) {
       var a = (pt2.y - pt1.y) / (pt2.x - pt1.x);
       return {
         a: a,
@@ -110,8 +114,9 @@ L.PolylineOffset = {
       }; 
     }
 
-    if (pt1.y != pt2.y)
+    if (pt1.y != pt2.y) {
       return { x: pt1.x };
+    }
 
     return null;
   },
@@ -163,38 +168,42 @@ L.PolylineOffset = {
   Interpolates points between two offset segments in a circular form
   */
   circularArc: function(s1, s2, distance) {
-      if (s1.angle == s2.angle)
-        return [s1.offset[1]];
+    if (s1.angle == s2.angle)
+      return [s1.offset[1]];
 
-      var center = s1.original[1];
-      var points = [];
+    var center = s1.original[1];
+    var points = [];
 
-      if (distance < 0) {
-        var startAngle = s1.offsetAngle;
-        var endAngle = s2.offsetAngle;
-      } else {
-        // switch start and end angle when going right
-        var startAngle = s2.offsetAngle;
-        var endAngle = s1.offsetAngle;
-      }
+    if (distance < 0) {
+      var startAngle = s1.offsetAngle;
+      var endAngle = s2.offsetAngle;
+    } else {
+      // switch start and end angle when going right
+      var startAngle = s2.offsetAngle;
+      var endAngle = s1.offsetAngle;
+    }
 
-      if (endAngle < startAngle)
-        endAngle += Math.PI * 2; // the end angle should be bigger than the start angle
+    if (endAngle < startAngle) {
+      endAngle += Math.PI * 2; // the end angle should be bigger than the start angle
+    }
 
-      if (endAngle > startAngle + Math.PI)
-        return [this.intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
+    if (endAngle > startAngle + Math.PI) {
+      return [this.intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
+    }
 
-      // Step is distance dependent. Bigger distance results in more steps to take
-      var step = Math.abs(8/distance); 
-      for (var a = startAngle; a < endAngle; a += step)
-        points.push(this.translatePoint(center, distance, a));
-      points.push(this.translatePoint(center, distance, endAngle));
+    // Step is distance dependent. Bigger distance results in more steps to take
+    var step = Math.abs(8/distance); 
+    for (var a = startAngle; a < endAngle; a += step) {
+      points.push(this.translatePoint(center, distance, a));
+    }
+    points.push(this.translatePoint(center, distance, endAngle));
 
-      if (distance > 0)
-        // reverse all points again when going right
-        points.reverse();
+    if (distance > 0) {
+      // reverse all points again when going right
+      points.reverse();
+    }
 
-      return points;
+    return points;
   }
 }
 
