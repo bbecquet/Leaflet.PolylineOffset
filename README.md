@@ -36,4 +36,5 @@ pl.setOffset(0);
 MIT.
 
 ## Authors
-[Benjamin Becquet](//github.com/bbecquet)
+* [Benjamin Becquet](//github.com/bbecquet)
+* [sanderd17](//github.com/sanderd17)
