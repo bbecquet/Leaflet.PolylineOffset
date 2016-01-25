@@ -225,8 +225,8 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
       // Offset management hack END ---
     }
   });
-} else if(L.version.charAt(0) == '1') {
-// Versions >= 1.0
+} else {
+// Versions >= 0.8
   L.Polyline.include({
     _projectLatlngs: function (latlngs, result, projectedBounds) {
       var flat = latlngs[0] instanceof L.LatLng,
@@ -237,7 +237,9 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
         ring = [];
         for (i = 0; i < len; i++) {
           ring[i] = this._map.latLngToLayerPoint(latlngs[i]);
-  				projectedBounds.extend(ring[i]);
+          if (projectedBounds !== undefined) {
+            projectedBounds.extend(ring[i]);
+          }
         }
         // Offset management hack ---
         if(this.options.offset) {
@@ -247,33 +249,11 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
         result.push(ring);
       } else {
         for (i = 0; i < len; i++) {
-          this._projectLatlngs(latlngs[i], result, projectedBounds);
-        }
-      }
-    }
-  });
-} else {
-// Versions >= 0.8
-  L.Polyline.include({
-    _projectLatlngs: function (latlngs, result) {
-      var flat = latlngs[0] instanceof L.LatLng,
-          len = latlngs.length,
-          i, ring;
-
-      if (flat) {
-        ring = [];
-        for (i = 0; i < len; i++) {
-          ring[i] = this._map.latLngToLayerPoint(latlngs[i]);
-        }
-        // Offset management hack ---
-        if(this.options.offset) {
-          ring = L.PolylineOffset.offsetPoints(ring, this.options.offset);
-        }
-        // Offset management hack END ---
-        result.push(ring);
-      } else {
-        for (i = 0; i < len; i++) {
-          this._projectLatlngs(latlngs[i], result);
+          if (projectedBounds !== undefined) {
+            this._projectLatlngs(latlngs[i], result, projectedBounds);
+          } else {
+            this._projectLatlngs(latlngs[i], result);
+          }
         }
       }
     }
