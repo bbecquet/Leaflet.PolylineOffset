@@ -43,7 +43,7 @@ L.PolylineOffset = {
       pts[i] = map.project(ll[i]);
     }
     return pts;
-  },  
+  },
 
   pointsToLatLngs: function(pts, map) {
     var ll = [];
@@ -111,7 +111,7 @@ L.PolylineOffset = {
       return {
         a: a,
         b: pt1.y - a * pt1.x
-      }; 
+      };
     }
 
     if (pt1.y != pt2.y) {
@@ -153,7 +153,7 @@ L.PolylineOffset = {
     var joinedPoints = [];
     var s1 = segments[0], s2 = segments[0];
     joinedPoints.push(s1.offset[0]);
-    
+
     for(var i=1; i<l; i++) {
       s2 = segments[i];
       joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
@@ -192,7 +192,7 @@ L.PolylineOffset = {
     }
 
     // Step is distance dependent. Bigger distance results in more steps to take
-    var step = Math.abs(8/distance); 
+    var step = Math.abs(8/distance);
     for (var a = startAngle; a < endAngle; a += step) {
       points.push(this.translatePoint(center, distance, a));
     }
@@ -208,7 +208,7 @@ L.PolylineOffset = {
 }
 
 // Modify the L.Polyline class by overwriting the projection function,
-// to add offset related code 
+// to add offset related code
 // Versions < 0.8
 if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
   L.Polyline.include({
@@ -228,7 +228,7 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
 } else {
 // Versions >= 0.8
   L.Polyline.include({
-    _projectLatlngs: function (latlngs, result) {
+    _projectLatlngs: function (latlngs, result, projectedBounds) {
       var flat = latlngs[0] instanceof L.LatLng,
           len = latlngs.length,
           i, ring;
@@ -237,6 +237,9 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
         ring = [];
         for (i = 0; i < len; i++) {
           ring[i] = this._map.latLngToLayerPoint(latlngs[i]);
+          if (projectedBounds !== undefined) {
+            projectedBounds.extend(ring[i]);
+          }
         }
         // Offset management hack ---
         if(this.options.offset) {
@@ -246,7 +249,11 @@ if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
         result.push(ring);
       } else {
         for (i = 0; i < len; i++) {
-          this._projectLatlngs(latlngs[i], result);
+          if (projectedBounds !== undefined) {
+            this._projectLatlngs(latlngs[i], result, projectedBounds);
+          } else {
+            this._projectLatlngs(latlngs[i], result);
+          }
         }
       }
     }
