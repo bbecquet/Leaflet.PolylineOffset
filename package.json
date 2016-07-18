@@ -1,0 +1,30 @@
+{
+  "name": "leaflet-polylineoffset",
+  "version": "1.0.0",
+  "description": "Apply a relative pixel offset to polylines without changing their coordinates.",
+  "main": "leaflet.polylineoffset.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bbecquet/Leaflet.PolylineOffset.git"
+  },
+  "keywords": [
+    "map",
+    "leaflet",
+    "polyline",
+    "offset",
+    "layer",
+    "vector"
+  ],
+  "author": "Benjamin Becquet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bbecquet/Leaflet.PolylineOffset/issues"
+  },
+  "homepage": "https://github.com/bbecquet/Leaflet.PolylineOffset#readme"
+}
