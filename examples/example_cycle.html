@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
+
     <title>Leaflet Polyline Offset - Cycle lanes example</title>
 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <style>
       * { margin: 0; padding: 0; }
       html, body { height: 100%; }
       #map { width:100%; height:100%; }
     </style>
-    
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet-src.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="../leaflet.polylineoffset.js"></script>
     <script>
       window.onload = function () {
@@ -45,7 +45,7 @@
     			dashArray: '30,8,5,8',
           offset: 7
     		}).addTo(map);
-    		
+
     		L.polyline(coords, {
     			color: 'yellow',
     			weight: 1,
@@ -53,7 +53,7 @@
     			dashArray: '3,6',
           offset: -7
     		}).addTo(map);
-    		
+
     		map.fitBounds(r.getBounds());
       }
     </script>

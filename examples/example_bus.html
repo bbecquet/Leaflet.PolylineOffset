@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
+
     <title>Leaflet Polyline Offset - Bus lines example</title>
 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <style>
       * { margin: 0; padding: 0; }
       html, body { height: 100%; }
       #map { width:100%; height:100%; }
     </style>
-    
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet-src.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="../leaflet.polylineoffset.js"></script>
     <script>
       window.onload = function () {
@@ -258,7 +258,7 @@
           addStop(segmentCoords[0]);
           addStop(segmentCoords[segmentCoords.length - 1]);
         });
-        
+
         ends.forEach(function(endCoords) {
           L.circleMarker(endCoords, {
             color: '#000',
