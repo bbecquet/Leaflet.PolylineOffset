@@ -24,7 +24,7 @@ L.PolylineOffset = {
       offsetAngle = segmentAngle - Math.PI/2;
 
       // store offset point and other information to avoid recomputing it later
-      if (dist > 1) {
+      if (dist > distance) {
         offsetSegments.push({
           angle: segmentAngle,
           offsetAngle: offsetAngle,
@@ -35,8 +35,8 @@ L.PolylineOffset = {
             this.translatePoint(b, distance, offsetAngle)
           ]
         });
+        a = b;
       }
-      a = b;
     }
 
     return offsetSegments;
@@ -157,14 +157,16 @@ L.PolylineOffset = {
     var l = segments.length;
     var joinedPoints = [];
     var s1 = segments[0], s2 = segments[0];
-    joinedPoints.push(s1.offset[0]);
+    if (s1 && s2) {
+      joinedPoints.push(s1.offset[0]);
 
-    for(var i=1; i<l; i++) {
-      s2 = segments[i];
-      joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
-      s1 = s2;
+      for(var i=1; i<l; i++) {
+        s2 = segments[i];
+        joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
+        s1 = s2;
+      }
+      joinedPoints.push(s2.offset[1]);
     }
-    joinedPoints.push(s2.offset[1]);
 
     return joinedPoints;
   },
