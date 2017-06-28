@@ -9,22 +9,23 @@ L.PolylineOffset = {
       throw new Error('Line should be defined by at least 2 points');
     }
 
-    var a = points[0], b, xs ,ys, dist;
+    var a = points[0], b, xs ,ys, sqDist;
     var offsetAngle, segmentAngle;
     var offsetSegments = [];
+    var sqDistance = distance * distance;
 
     for(var i=1; i < l; i++) {
       b = points[i];
       xs = b.x - a.x;
       ys = b.y - a.y;
-      dist = Math.sqrt(xs * xs + ys * ys);
+      sqDist = xs * xs + ys * ys;
       // angle in (-PI, PI]
       segmentAngle = Math.atan2(a.y - b.y, a.x - b.x);
       // angle in (-1.5 * PI, PI/2]
       offsetAngle = segmentAngle - Math.PI/2;
 
       // store offset point and other information to avoid recomputing it later
-      if (dist > distance) {
+      if (sqDist > sqDistance) {
         offsetSegments.push({
           angle: segmentAngle,
           offsetAngle: offsetAngle,
