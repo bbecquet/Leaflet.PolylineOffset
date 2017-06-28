@@ -41,6 +41,9 @@ pl.setOffset(0);
 ## License
 MIT.
 
-## Authors
-* [Benjamin Becquet](//github.com/bbecquet)
-* [sanderd17](//github.com/sanderd17)
+## Contributors
+* [Benjamin Becquet](https://github.com/bbecquet) (original author)
+* [sanderd17](https://github.com/sanderd17)
+* [jellevoost](https://github.com/jellevoost)
+* [ghybs](https://github.com/ghybs)
+* [BartWaardenburg](https://github.com/BartWaardenburg)
