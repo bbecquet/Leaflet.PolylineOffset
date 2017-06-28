@@ -9,29 +9,34 @@ L.PolylineOffset = {
       throw new Error('Line should be defined by at least 2 points');
     }
 
-    var a = points[0], b;
+    var a = points[0], b, xs ,ys, dist;
     var offsetAngle, segmentAngle;
     var offsetSegments = [];
 
     for(var i=1; i < l; i++) {
       b = points[i];
+      xs = b.x - a.x;
+      ys = b.y - a.y;
+      dist = Math.sqrt(xs * xs + ys * ys);
       // angle in (-PI, PI]
       segmentAngle = Math.atan2(a.y - b.y, a.x - b.x);
       // angle in (-1.5 * PI, PI/2]
       offsetAngle = segmentAngle - Math.PI/2;
 
       // store offset point and other information to avoid recomputing it later
-      offsetSegments.push({
-        angle: segmentAngle,
-        offsetAngle: offsetAngle,
-        distance: distance,
-        original: [a, b],
-        offset: [
-          this.translatePoint(a, distance, offsetAngle),
-          this.translatePoint(b, distance, offsetAngle)
-        ]
-      });
-      a = b;
+      if (dist > distance) {
+        offsetSegments.push({
+          angle: segmentAngle,
+          offsetAngle: offsetAngle,
+          distance: distance,
+          original: [a, b],
+          offset: [
+            this.translatePoint(a, distance, offsetAngle),
+            this.translatePoint(b, distance, offsetAngle)
+          ]
+        });
+        a = b;
+      }
     }
 
     return offsetSegments;
@@ -152,14 +157,16 @@ L.PolylineOffset = {
     var l = segments.length;
     var joinedPoints = [];
     var s1 = segments[0], s2 = segments[0];
-    joinedPoints.push(s1.offset[0]);
+    if (s1 && s2) {
+      joinedPoints.push(s1.offset[0]);
 
-    for(var i=1; i<l; i++) {
-      s2 = segments[i];
-      joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
-      s1 = s2;
+      for(var i=1; i<l; i++) {
+        s2 = segments[i];
+        joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
+        s1 = s2;
+      }
+      joinedPoints.push(s2.offset[1]);
     }
-    joinedPoints.push(s2.offset[1]);
 
     return joinedPoints;
   },
