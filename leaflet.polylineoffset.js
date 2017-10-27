@@ -103,33 +103,14 @@ L.PolylineOffset = {
     },
 
     /**
-    Join 2 line segments defined by 2 points each,
-    with a specified methodnormalizeAngle( (default : intersection);
+    Join 2 line segments defined by 2 points each with a circular arc
     */
-    joinSegments: function(s1, s2, offset, joinStyle) {
-        var jointPoints = [];
-        switch(joinStyle) {
-            case 'round':
-            jointPoints = this.circularArc(s1, s2, offset);
-            break;
-            case 'cut':
-            jointPoints = [
-                this.intersection(s1.offset[0], s1.offset[1], s2.original[0], s2.original[1]),
-                this.intersection(s1.original[0], s1.original[1], s2.offset[0], s2.offset[1])
-            ];
-            break;
-            case 'straight':
-            jointPoints = [s1.offset[1], s2.offset[0]];
-            break;
-            case 'intersection':
-            default:
-            jointPoints = [this.intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
-        }
-        // filter out null-results
-        return jointPoints.filter(function(v) {return v;});
+    joinSegments: function(s1, s2, offset) {
+        // TODO: different join styles
+        return this.circularArc(s1, s2, offset);
     },
 
-    joinLineSegments: function(segments, offset, joinStyle) {
+    joinLineSegments: function(segments, offset) {
         var l = segments.length;
         var joinedPoints = [];
         var s1 = segments[0], s2 = segments[0];
@@ -138,7 +119,7 @@ L.PolylineOffset = {
 
             for(var i=1; i<l; i++) {
                 s2 = segments[i];
-                joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset, joinStyle));
+                joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset));
                 s1 = s2;
             }
             joinedPoints.push(s2.offset[1]);
