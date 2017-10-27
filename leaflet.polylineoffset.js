@@ -216,57 +216,37 @@ L.PolylineOffset = {
 }
 
 // Modify the L.Polyline class by overwriting the projection function,
-// to add offset related code
-// Versions < 0.8
-if(L.version.charAt(0) == '0' && parseInt(L.version.charAt(2)) < 8) {
-    L.Polyline.include({
-        projectLatlngs: function() {
-            this._originalPoints = [];
+L.Polyline.include({
+    _projectLatlngs: function (latlngs, result, projectedBounds) {
+        var flat = latlngs[0] instanceof L.LatLng,
+        len = latlngs.length,
+        i, ring;
 
-            for (var i = 0, len = this._latlngs.length; i < len; i++) {
-                this._originalPoints[i] = this._map.latLngToLayerPoint(this._latlngs[i]);
+        if (flat) {
+            ring = [];
+            for (i = 0; i < len; i++) {
+                ring[i] = this._map.latLngToLayerPoint(latlngs[i]);
+                if (projectedBounds !== undefined) {
+                    projectedBounds.extend(ring[i]);
+                }
             }
             // Offset management hack ---
             if(this.options.offset) {
-                this._originalPoints = L.PolylineOffset.offsetPoints(this._originalPoints, this.options.offset);
+                ring = L.PolylineOffset.offsetPoints(ring, this.options.offset);
             }
             // Offset management hack END ---
-        }
-    });
-} else {
-    // Versions >= 0.8
-    L.Polyline.include({
-        _projectLatlngs: function (latlngs, result, projectedBounds) {
-            var flat = latlngs[0] instanceof L.LatLng,
-            len = latlngs.length,
-            i, ring;
-
-            if (flat) {
-                ring = [];
-                for (i = 0; i < len; i++) {
-                    ring[i] = this._map.latLngToLayerPoint(latlngs[i]);
-                    if (projectedBounds !== undefined) {
-                        projectedBounds.extend(ring[i]);
-                    }
-                }
-                // Offset management hack ---
-                if(this.options.offset) {
-                    ring = L.PolylineOffset.offsetPoints(ring, this.options.offset);
-                }
-                // Offset management hack END ---
-                result.push(ring);
-            } else {
-                for (i = 0; i < len; i++) {
-                    if (projectedBounds !== undefined) {
-                        this._projectLatlngs(latlngs[i], result, projectedBounds);
-                    } else {
-                        this._projectLatlngs(latlngs[i], result);
-                    }
+            result.push(ring);
+        } else {
+            for (i = 0; i < len; i++) {
+                if (projectedBounds !== undefined) {
+                    this._projectLatlngs(latlngs[i], result, projectedBounds);
+                } else {
+                    this._projectLatlngs(latlngs[i], result);
                 }
             }
         }
-    });
-}
+    }
+});
 
 L.Polyline.include({
     setOffset: function(offset) {
