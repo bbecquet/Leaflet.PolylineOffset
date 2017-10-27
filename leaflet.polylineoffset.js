@@ -43,26 +43,9 @@ L.PolylineOffset = {
         return offsetSegments;
     },
 
-    latLngsToPoints: function(latLngs, map) {
-        return latLngs.map(function(ll) { map.project(ll); });
-    },
-
-    pointsToLatLngs: function(points, map) {
-        return points.map(function(pt) { map.unproject(pt); });
-    },
-
-    offsetLatLngs: function(ll, offset, map) {
-        var offsetPoints = this.offsetLatLngsToPoints(ll, offset, map);
-        return this.pointsToLatLngs(offsetPoints, map);
-    },
-
-    offsetLatLngsToPoints: function(ll, offset, map) {
-        var origPoints = this.latLngsToPoints(ll, map);
-        return this.offsetPoints(origPoints, offset);
-    },
-
     offsetPoints: function(pts, offset) {
         var offsetSegments = this.offsetPointLine(pts, offset);
+        console.log(offsetSegments);
         return this.joinLineSegments(offsetSegments, offset, 'round');
     },
 
