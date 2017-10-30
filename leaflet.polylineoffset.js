@@ -1,6 +1,6 @@
 L.PolylineOffset = {
-    translatePoint: function(pt, dist, radians) {
-        return L.point(pt.x + dist * Math.cos(radians), pt.y + dist * Math.sin(radians));
+    translatePoint: function(pt, dist, heading) {
+        return L.point(pt.x + dist * Math.cos(heading), pt.y + dist * Math.sin(heading));
     },
 
     forEachPair: function(list, callback) {
@@ -12,32 +12,22 @@ L.PolylineOffset = {
 
     offsetPointLine: function(points, distance) {
         var offsetSegments = [];
-        var xs, ys, sqDist;
-        var offsetAngle, segmentAngle;
-        var sqDistance = distance * distance;
 
         this.forEachPair(points, L.bind(function(a, b) {
-            xs = b.x - a.x;
-            ys = b.y - a.y;
-            sqDist = xs * xs + ys * ys;
-            // angle in (-PI, PI]
-            segmentAngle = Math.atan2(a.y - b.y, a.x - b.x);
-            // angle in (-1.5 * PI, PI/2]
-            offsetAngle = segmentAngle - Math.PI/2;
+            if (a.x === b.x && a.y === b.y) { return; }
 
-            // store offset point and other information to avoid recomputing it later
-            if (sqDist > sqDistance) {
-                offsetSegments.push({
-                    angle: segmentAngle,
-                    offsetAngle: offsetAngle,
-                    distance: distance,
-                    original: [a, b],
-                    offset: [
-                        this.translatePoint(a, distance, offsetAngle),
-                        this.translatePoint(b, distance, offsetAngle)
-                    ]
-                });
-            }
+            // angles in (-PI, PI]
+            var segmentAngle = Math.atan2(a.y - b.y, a.x - b.x);
+            var offsetAngle = this.normalizeAngle(segmentAngle - Math.PI/2);
+
+            offsetSegments.push({
+                offsetAngle: offsetAngle,
+                original: [a, b],
+                offset: [
+                    this.translatePoint(a, distance, offsetAngle),
+                    this.translatePoint(b, distance, offsetAngle)
+                ]
+            });
         }, this));
 
         return offsetSegments;
@@ -106,7 +96,8 @@ L.PolylineOffset = {
     */
     joinSegments: function(s1, s2, offset) {
         // TODO: different join styles
-        return this.circularArc(s1, s2, offset);
+        return this.circularArc(s1, s2, offset)
+            .filter(function(x) { return x; })
     },
 
     joinLineSegments: function(segments, offset) {
@@ -125,49 +116,60 @@ L.PolylineOffset = {
         return joinedPoints;
     },
 
+    normalizeAngle: function(angle) {
+        while (angle > Math.PI) { angle -= 2 * Math.PI; }
+        while (angle < -Math.PI) { angle += 2 * Math.PI; }
+        return angle;
+    },
+
+    segmentAsVector: function(s) {
+        return {
+            x: s[1].x - s[0].x,
+            y: s[1].y - s[0].y,
+        };
+    },
+
+    getSignedAngle: function(s1, s2) {
+        const a = this.segmentAsVector(s1);
+        const b = this.segmentAsVector(s2);
+        return Math.atan2(a.x * b.y - a.y * b.x, a.x * b.x + a.y * b.y);
+    },
+
     /**
     Interpolates points between two offset segments in a circular form
     */
     circularArc: function(s1, s2, distance) {
-        if (s1.angle === s2.angle) {
+        // if the segments are the same angle,
+        // there should be a single join point
+        if (s1.offsetAngle === s2.offsetAngle) {
             return [s1.offset[1]];
         }
 
-        var center = s1.original[1];
-        var points = [];
-        var startAngle;
-        var endAngle;
-
-        if (distance < 0) {
-            startAngle = s1.offsetAngle;
-            endAngle = s2.offsetAngle;
-        } else {
-            // switch start and end angle when going right
-            startAngle = s2.offsetAngle;
-            endAngle = s1.offsetAngle;
-        }
-
-        if (endAngle < startAngle) {
-            endAngle += Math.PI * 2; // the end angle should be bigger than the start angle
-        }
-
-        if (endAngle > startAngle + Math.PI) {
+        const signedAngle = this.getSignedAngle(s1.offset, s2.offset);
+        // for inner angles, just find the offset segments intersection
+        if ((signedAngle * distance > 0) &&
+            (signedAngle * this.getSignedAngle(s1.offset, [s1.offset[0], s2.offset[1]]) > 0)) {
             return [this.intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
         }
 
-        // Step is distance dependent. Bigger distance results in more steps to take
-        var step = Math.abs(8/distance);
-        for (var a = startAngle; a < endAngle; a += step) {
-            points.push(this.translatePoint(center, distance, a));
+        // draws a circular arc with R = offset distance, C = original meeting point
+        var points = [];
+        var center = s1.original[1];
+        // ensure angles go in the anti-clockwise direction
+        var rightOffset = distance > 0;
+        var startAngle = rightOffset ? s2.offsetAngle : s1.offsetAngle;
+        var endAngle = rightOffset ? s1.offsetAngle : s2.offsetAngle;
+        // and that the end angle is bigger than the start angle
+        if (endAngle < startAngle) {
+            endAngle += Math.PI * 2;
+        }
+        var step = Math.PI / 8;
+        for (var alpha = startAngle; alpha < endAngle; alpha += step) {
+            points.push(this.translatePoint(center, distance, alpha));
         }
         points.push(this.translatePoint(center, distance, endAngle));
 
-        if (distance > 0) {
-            // reverse all points again when going right
-            points.reverse();
-        }
-
-        return points;
+        return rightOffset ? points.reverse() : points;
     }
 }
 
