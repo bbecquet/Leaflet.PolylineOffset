@@ -22,17 +22,15 @@ or the constant x for vertical lines
 Return null if there's no equation possible
 */
 function lineEquation(pt1, pt2) {
-    if (pt1.x !== pt2.x) {
-        var a = (pt2.y - pt1.y) / (pt2.x - pt1.x);
-        return {
-            a: a,
-            b: pt1.y - a * pt1.x,
-        };
+    if (pt1.x === pt2.x) {
+        return pt1.y === pt2.y ? null : { x: pt1.x };
     }
 
-    return pt1.y === pt2.y
-        ? null
-        : { x: pt1.x };
+    var a = (pt2.y - pt1.y) / (pt2.x - pt1.x);
+    return {
+        a: a,
+        b: pt1.y - a * pt1.x,
+    };
 }
 
 /**
