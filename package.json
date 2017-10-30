@@ -1,6 +1,6 @@
 {
   "name": "leaflet-polylineoffset",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Apply a relative pixel offset to polylines without changing their coordinates.",
   "main": "leaflet.polylineoffset.js",
   "directories": {
