@@ -1,4 +1,15 @@
-L.PolylineOffset = {
+(function (factory, window) {
+    if (typeof define === 'function' && define.amd) {
+        define(['leaflet'], factory);
+    } else if (typeof exports === 'object') {
+        module.exports = factory(require('leaflet'));
+    }
+    if (typeof window !== 'undefined' && window.L) {
+        window.L.PolylineOffset = factory(L);
+    }
+}(function (L) {
+
+var PolylineOffset = {
     translatePoint: function(pt, dist, heading) {
         return L.point(pt.x + dist * Math.cos(heading), pt.y + dist * Math.sin(heading));
     },
@@ -173,7 +184,7 @@ L.PolylineOffset = {
     }
 }
 
-// Modify the L.Polyline class by overwriting the projection function,
+// Modify the L.Polyline class by overwriting the projection function
 L.Polyline.include({
     _projectLatlngs: function (latlngs, result, projectedBounds) {
         var isFlat = latlngs.length > 0 && latlngs[0] instanceof L.LatLng;
@@ -209,3 +220,7 @@ L.Polyline.include({
         return this;
     }
 });
+
+return PolylineOffset;
+
+}, window));
