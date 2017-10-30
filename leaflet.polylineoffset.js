@@ -9,34 +9,94 @@
     }
 }(function (L) {
 
+function forEachPair(list, callback) {
+    if (!list || list.length < 1) { return; }
+    for (var i = 1, l = list.length; i < l; i++) {
+        callback(list[i-1], list[i]);
+    }
+}
+
+/**
+Find the coefficients (a,b) of a line of equation y = a.x + b,
+or the constant x for vertical lines
+Return null if there's no equation possible
+*/
+function lineEquation(pt1, pt2) {
+    if (pt1.x !== pt2.x) {
+        var a = (pt2.y - pt1.y) / (pt2.x - pt1.x);
+        return {
+            a: a,
+            b: pt1.y - a * pt1.x,
+        };
+    }
+
+    return pt1.y === pt2.y
+        ? null
+        : { x: pt1.x };
+}
+
+/**
+Return the intersection point of two lines defined by two points each
+Return null when there's no unique intersection
+*/
+function intersection(l1a, l1b, l2a, l2b) {
+    var line1 = lineEquation(l1a, l1b);
+    var line2 = lineEquation(l2a, l2b);
+
+    if (line1 === null || line2 === null) {
+        return null;
+    }
+
+    if (line1.hasOwnProperty('x')) {
+        return line2.hasOwnProperty('x')
+            ? null
+            : {
+                x: line1.x,
+                y: line2.a * line1.x + line2.b,
+            };
+    }
+    if (line2.hasOwnProperty('x')) {
+        return {
+            x: line2.x,
+            y: line1.a * line2.x + line1.b,
+        };
+    }
+
+    if (line1.a === line2.a) {
+        return null;
+    }
+
+    var x = (line2.b - line1.b) / (line1.a - line2.a);
+    return {
+        x: x,
+        y: line1.a * x + line1.b,
+    };
+}
+
+function translatePoint(pt, dist, heading) {
+    return {
+        x: pt.x + dist * Math.cos(heading),
+        y: pt.y + dist * Math.sin(heading),
+    };
+}
+
 var PolylineOffset = {
-    translatePoint: function(pt, dist, heading) {
-        return L.point(pt.x + dist * Math.cos(heading), pt.y + dist * Math.sin(heading));
-    },
-
-    forEachPair: function(list, callback) {
-        if (!list || list.length < 1) { return; }
-        for (var i = 1, l = list.length; i < l; i++) {
-            callback(list[i-1], list[i]);
-        }
-    },
-
     offsetPointLine: function(points, distance) {
         var offsetSegments = [];
 
-        this.forEachPair(points, L.bind(function(a, b) {
+        forEachPair(points, L.bind(function(a, b) {
             if (a.x === b.x && a.y === b.y) { return; }
 
             // angles in (-PI, PI]
             var segmentAngle = Math.atan2(a.y - b.y, a.x - b.x);
-            var offsetAngle = this.normalizeAngle(segmentAngle - Math.PI/2);
+            var offsetAngle = segmentAngle - Math.PI/2;
 
             offsetSegments.push({
                 offsetAngle: offsetAngle,
                 original: [a, b],
                 offset: [
-                    this.translatePoint(a, distance, offsetAngle),
-                    this.translatePoint(b, distance, offsetAngle)
+                    translatePoint(a, distance, offsetAngle),
+                    translatePoint(b, distance, offsetAngle)
                 ]
             });
         }, this));
@@ -47,59 +107,6 @@ var PolylineOffset = {
     offsetPoints: function(pts, offset) {
         var offsetSegments = this.offsetPointLine(pts, offset);
         return this.joinLineSegments(offsetSegments, offset);
-    },
-
-    /**
-    Return the intersection point of two lines defined by two points each
-    Return null when there's no unique intersection
-    */
-    intersection: function(l1a, l1b, l2a, l2b) {
-        var line1 = this.lineEquation(l1a, l1b);
-        var line2 = this.lineEquation(l2a, l2b);
-
-        if (line1 === null || line2 === null) {
-            return null;
-        }
-
-        if (line1.hasOwnProperty('x')) {
-            if (line2.hasOwnProperty('x')) {
-                return null;
-            }
-            return L.point(line1.x, line2.a * line1.x + line2.b);
-        }
-        if (line2.hasOwnProperty('x')) {
-            return L.point(line2.x, line1.a * line2.x + line1.b);
-        }
-
-        if (line1.a === line2.a) {
-            return null;
-        }
-
-        var x = (line2.b - line1.b) / (line1.a - line2.a);
-        var y = line1.a * x + line1.b;
-
-        return L.point(x, y);
-    },
-
-    /**
-    Find the coefficients (a,b) of a line of equation y = a.x + b,
-    or the constant x for vertical lines
-    Return null if there's no equation possible
-    */
-    lineEquation: function(pt1, pt2) {
-        if (pt1.x !== pt2.x) {
-            var a = (pt2.y - pt1.y) / (pt2.x - pt1.x);
-            return {
-                a: a,
-                b: pt1.y - a * pt1.x
-            };
-        }
-
-        if (pt1.y !== pt2.y) {
-            return { x: pt1.x };
-        }
-
-        return null;
     },
 
     /**
@@ -118,19 +125,13 @@ var PolylineOffset = {
 
         if (first && last) {
             joinedPoints.push(first.offset[0]);
-            this.forEachPair(segments, L.bind(function(s1, s2) {
+            forEachPair(segments, L.bind(function(s1, s2) {
                 joinedPoints = joinedPoints.concat(this.joinSegments(s1, s2, offset));
             }, this));
             joinedPoints.push(last.offset[1]);
         }
 
         return joinedPoints;
-    },
-
-    normalizeAngle: function(angle) {
-        while (angle > Math.PI) { angle -= 2 * Math.PI; }
-        while (angle < -Math.PI) { angle += 2 * Math.PI; }
-        return angle;
     },
 
     segmentAsVector: function(s) {
@@ -160,7 +161,7 @@ var PolylineOffset = {
         // for inner angles, just find the offset segments intersection
         if ((signedAngle * distance > 0) &&
             (signedAngle * this.getSignedAngle(s1.offset, [s1.offset[0], s2.offset[1]]) > 0)) {
-            return [this.intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
+            return [intersection(s1.offset[0], s1.offset[1], s2.offset[0], s2.offset[1])];
         }
 
         // draws a circular arc with R = offset distance, C = original meeting point
@@ -176,9 +177,9 @@ var PolylineOffset = {
         }
         var step = Math.PI / 8;
         for (var alpha = startAngle; alpha < endAngle; alpha += step) {
-            points.push(this.translatePoint(center, distance, alpha));
+            points.push(translatePoint(center, distance, alpha));
         }
-        points.push(this.translatePoint(center, distance, endAngle));
+        points.push(translatePoint(center, distance, endAngle));
 
         return rightOffset ? points.reverse() : points;
     }
