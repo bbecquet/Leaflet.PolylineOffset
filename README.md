@@ -1,6 +1,6 @@
 Leaflet Polyline Offset
 ===
-Works with Leaflet 0.7.x and 1.0.x.
+Works with Leaflet >= 1.0.
 
 This plugin adds to Leaflet `Polyline`s the ability to be drawn with a relative pixel offset, without modifying their actual `LatLng`s. The offset value can be either negative or positive, for left- or right-side offset, and remains constant across zoom levels.
 
