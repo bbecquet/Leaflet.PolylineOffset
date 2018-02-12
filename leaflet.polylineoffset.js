@@ -203,7 +203,9 @@ L.Polyline.include({
             }
             // Offset management hack END ---
 
-            result.push(ring);
+            result.push(ring.map(function (xy) {
+                    return L.point(xy.x, xy.y);
+                }));
         } else {
             latlngs.forEach(L.bind(function(ll) {
                 this._projectLatlngs(ll, result, projectedBounds);
