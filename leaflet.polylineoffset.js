@@ -103,7 +103,7 @@ var PolylineOffset = {
     },
 
     offsetPoints: function(pts, offset) {
-        var offsetSegments = this.offsetPointLine(pts, offset);
+        var offsetSegments = this.offsetPointLine(L.LineUtil.simplify(pts, 1.0), offset);
         return this.joinLineSegments(offsetSegments, offset);
     },
 
