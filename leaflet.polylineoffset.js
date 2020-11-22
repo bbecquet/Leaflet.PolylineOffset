@@ -102,9 +102,9 @@ var PolylineOffset = {
         return offsetSegments;
     },
 
-    offsetPoints: function(pts, offset) {
-        var offsetSegments = this.offsetPointLine(pts, offset);
-        return this.joinLineSegments(offsetSegments, offset);
+    offsetPoints: function(pts, options) {
+        var offsetSegments = this.offsetPointLine(L.LineUtil.simplify(pts, options.smoothFactor), options.offset);
+        return this.joinLineSegments(offsetSegments, options.offset);
     },
 
     /**
@@ -199,7 +199,7 @@ L.Polyline.include({
 
             // Offset management hack ---
             if (this.options.offset) {
-                ring = L.PolylineOffset.offsetPoints(ring, this.options.offset);
+                ring = L.PolylineOffset.offsetPoints(ring, this.options);
             }
             // Offset management hack END ---
 
